@@ -10,3 +10,7 @@ I make no guarantees as to how well this thing works, and I can guarantee that n
 License:
 
 http://www.apache.org/licenses/LICENSE-2.0.html
+
+---
+
+For ongoing help with BLE, please sign up for the BLE Meetup (http://www.meetup.com/Bluetooth-Low-Energy-BLE-Meetup/)
