@@ -1,5 +1,5 @@
 //
-//  UNSBlittrRoom.h
+//  UNSBleatrRoom.h
 //  Bleatr
 //
 //  Created by Mark Pauley on 2/9/14.
@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 /*
- * Bleatr BLE Service definition
+ * Bleatr BLE GATT Service definition
  */
 // Bleatr Service UUID
 #define BLEATR_SERVICE_ID       "1A3E65D0-26D3-4BCC-A85E-545D04FEB5A0"
@@ -23,6 +23,10 @@ extern NSString* const BleatrToCentralServiceID;
 #define BLEATR_TO_PERIPHERAL_ID "1A3E65D0-26D3-4BCC-A85E-545D04FEB5A2"
 extern NSString* const BleatrToPeripheralServiceID;
 
+// BLE enforces an MTU of 20 bytes at least
+#define BLEATR_MAX_MESSAGE_LENGTH 20
+
+
 @class CBUUID;
 
 @interface UNSBleatrRoom : NSObject
@@ -31,6 +35,7 @@ extern NSString* const BleatrToPeripheralServiceID;
 +(CBUUID*)ToCentralServiceID;
 +(CBUUID*)ToPeripheralServiceID;
 
+@property (nonatomic,readonly,getter = isConnected) BOOL connected;
 // Human readable name of this room
 @property (nonatomic,readonly,strong) NSString* name;
 
@@ -39,6 +44,7 @@ extern NSString* const BleatrToPeripheralServiceID;
 
 
 -(void)postBleat:(NSString*)bleat;
+
 
 
 @end

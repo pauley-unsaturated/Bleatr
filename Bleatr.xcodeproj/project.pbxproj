@@ -104,8 +104,8 @@
 				E7EC540E18A8A90D00AF23EC /* UNSAppDelegate.m */,
 				E7EC541018A8A90D00AF23EC /* Main_iPhone.storyboard */,
 				E7EC541318A8A90D00AF23EC /* Main_iPad.storyboard */,
-				E7EC543F18A8AB3900AF23EC /* View Controllers */,
 				E7EC544018A8AB4900AF23EC /* Models */,
+				E7EC543F18A8AB3900AF23EC /* View Controllers */,
 				E7EC541C18A8A90D00AF23EC /* Images.xcassets */,
 				E7EC540518A8A90D00AF23EC /* Supporting Files */,
 			);

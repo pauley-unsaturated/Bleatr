@@ -41,7 +41,7 @@ NSString* const BleatrToPeripheralServiceID = @BLEATR_TO_PERIPHERAL_ID;
 }
 
 -(void)postBleat:(NSString *)bleat {
-  assert(!"THIS BLEAT IS ABSTRACT, YO!");
+  assert(!"THE BLEATINGS WILL CONTINUE UNTIL MORALE IMPROVES");
 }
 
 @end

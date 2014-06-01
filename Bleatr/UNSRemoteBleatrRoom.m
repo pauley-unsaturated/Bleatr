@@ -17,7 +17,10 @@
   NSMutableArray* _bleats;
 }
 
-@synthesize name;
+// Abusing property synthesis to make these writable on the subclass
+//  hence the explicit synthesize. My appologies!
+@synthesize name = _name;
+@synthesize connected = _connected;
 
 -(id)initWithPeripheral:(CBPeripheral*)peripheral {
   self = [super init];
@@ -33,20 +36,27 @@
 }
 
 -(void)postBleat:(NSString *)bleat {
-  if(bleat.length > 20) {
+  if(bleat.length > BLEATR_MAX_MESSAGE_LENGTH) {
     // FIXME: UTF-8 may bust this!
-    bleat = [bleat substringWithRange:NSMakeRange(0, 20)];
+    //  We need to make sure the number of bytes is at most BLEATR_MAX_MESSAGE_LENGTH total.
+    bleat = [bleat substringWithRange:NSMakeRange(0, BLEATR_MAX_MESSAGE_LENGTH)];
   }
-  [_bleats addObject:bleat];
+  NSData* bleatData = [bleat dataUsingEncoding:NSUTF8StringEncoding];
   if(self.isConnected) {
-    [self.peripheral writeValue:[bleat dataUsingEncoding:NSUTF8StringEncoding]
-              forCharacteristic:self.toPeripheralCharacteristic
-                           type:CBCharacteristicWriteWithoutResponse];
+    [self _postBleat:bleatData];
   }
 }
 
+-(void)_postBleat:(NSData*)bleatData {
+  [self.peripheral writeValue:bleatData
+            forCharacteristic:self.toPeripheralCharacteristic
+                         type:CBCharacteristicWriteWithoutResponse];
+}
+
 -(void)addBleat:(NSString*)bleat {
-  
+  [self willChangeValueForKey:NSStringFromSelector(@selector(bleats))];
+  [_bleats addObject:bleat];
+  [self didChangeValueForKey:NSStringFromSelector(@selector(bleats))];
 }
 
 -(NSArray*)bleats {

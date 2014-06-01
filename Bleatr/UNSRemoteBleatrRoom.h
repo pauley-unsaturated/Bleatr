@@ -7,8 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreBluetooth/CoreBluetooth.h>
 
 #import "UNSBleatrRoom.h"
+
 
 @class CBPeripheral;
 @class CBCharacteristic;
@@ -17,7 +19,6 @@
 @interface UNSRemoteBleatrRoom : UNSBleatrRoom
 
 -(id)initWithPeripheral:(CBPeripheral*)peripheral;
--(void)postBleat:(NSString *)bleat;
 
 @property (nonatomic,readonly,strong)  CBPeripheral* peripheral;
 
@@ -27,6 +28,6 @@
 
 @property (nonatomic,readwrite,strong) NSString* name;
 @property (nonatomic,readonly,strong) NSArray* bleats;
-@property (nonatomic,readonly,getter = isConnected) BOOL connected;
+@property (nonatomic,readwrite,assign,getter=isConnected) BOOL connected;
 
 @end

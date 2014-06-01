@@ -6,6 +6,10 @@
 //  Copyright (c) 2014 Unsaturated. All rights reserved.
 //
 
+// The Room List is responsible for scanning for available rooms (via BLE)
+//  Each of these rooms is an UNSBleatrRoom object that we can post messages to!
+// One of the rooms is our own room, that we host.
+
 #import <Foundation/Foundation.h>
 
 #import "UNSBleatrRoom.h"

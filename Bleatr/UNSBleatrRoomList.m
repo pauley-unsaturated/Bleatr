@@ -6,6 +6,20 @@
 //  Copyright (c) 2014 Unsaturated. All rights reserved.
 //
 
+// This model object manages a list of Bleatr rooms.
+
+//  The first room will always be your hosted room.
+//  The remaining rooms are remote rooms, identified via BLE advertisement.
+
+// Currently, the Room List is responsible for connecting to the remote rooms, this means
+//  the room list must:
+// 0) Start scanning for the Bleatr service
+// 1) Initiate connection to a peripheral
+// 2) Discover Services
+// 3) Discover Characteristics
+// 4) Set notify state on the known inbound characteristic
+// 5) COMMENCE BLEATING
+
 #import "UNSBleatrRoomList.h"
 #import "UNSRemoteBleatrRoom.h"
 #import "UNSHostedBleatrRoom.h"
@@ -119,7 +133,7 @@ didDiscoverPeripheral:(CBPeripheral *)peripheral
   [self didChangeValueForKey:@"rooms"];
 }
 
-// Connection 2) Discover Services
+// Connection 2) Discover Services, now that we're connected.
 -(void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
   NSLog(@"Did Connect Peripheral %@", peripheral);
   UNSRemoteBleatrRoom* remoteRoom = _roomsByPeripheral[peripheral];
@@ -185,7 +199,7 @@ didDiscoverPeripheral:(CBPeripheral *)peripheral
   UNSRemoteBleatrRoom* remoteRoom = _roomsByPeripheral[peripheral];
   if([characteristic isEqual:remoteRoom.toCentralCharacteristic]) {
     if(characteristic.isNotifying) {
-      // Woo Hoo, we're done!  Let everybody know about it. -(pauley)
+      // Woo Hoo, we're done!  Let everybody know about it.
       [self roomConnected:remoteRoom];
     }
   }
