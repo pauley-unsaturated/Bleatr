@@ -18,7 +18,8 @@
 
 @interface UNSRemoteBleatrRoom : UNSBleatrRoom
 
--(id)initWithPeripheral:(CBPeripheral*)peripheral;
+-(id)initWithPeripheral:(CBPeripheral*)peripheral name:(NSString*)peripheralName;
+-(void)addBleat:(NSString*)bleat;
 
 @property (nonatomic,readonly,strong)  CBPeripheral* peripheral;
 

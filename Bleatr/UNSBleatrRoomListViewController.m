@@ -31,7 +31,7 @@
 - (void)viewDidLoad
 {
   [super viewDidLoad];
-  _bleatrRoomList = [[UNSBleatrRoomList alloc] init];
+  _bleatrRoomList = [UNSBleatrRoomList sharedInstance];
 	// Do any additional setup after loading the view, typically from a nib.
   self.navigationItem.leftBarButtonItem = self.editButtonItem;
   

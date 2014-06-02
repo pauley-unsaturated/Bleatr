@@ -121,23 +121,25 @@
 
 #pragma mark Data Transmission
 -(void)postBleat:(NSString *)bleat {
+  [self addBleat:bleat];
+}
+
+-(void)broadcastNewBleat:(NSString*)bleat {
   if(bleat.length > BLEATR_MAX_MESSAGE_LENGTH ) {
     // FIXME: UTF-8 may bust this.
     bleat = [bleat substringWithRange:NSMakeRange(0, BLEATR_MAX_MESSAGE_LENGTH)];
   }
-  // Drop the bleat!
   [self.peripheralManager updateValue:[bleat dataUsingEncoding:NSUTF8StringEncoding]
                     forCharacteristic:_toCentralCharacteristic
-                 onSubscribedCentrals:nil];
-  [self addBleat:bleat];
+                 onSubscribedCentrals:self.subscribedCentrals];
 }
 
 #pragma mark Data Reception
 -(void)addBleat:(NSString*)bleat {
   [self willChangeValueForKey:@"bleats"];
-  NSLog(@"BLEAT!");
   [_bleats addObject:bleat];
   [self didChangeValueForKey:@"bleats"];
+  [self broadcastNewBleat:bleat];
 }
 
 -(NSArray*)bleats {

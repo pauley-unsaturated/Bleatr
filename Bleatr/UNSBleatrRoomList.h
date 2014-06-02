@@ -16,6 +16,8 @@
 
 @interface UNSBleatrRoomList : NSObject
 
++(instancetype)sharedInstance;
+
 @property (nonatomic,readonly) NSArray* rooms;
 
 -(void)startScanning;

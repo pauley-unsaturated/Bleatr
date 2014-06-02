@@ -8,6 +8,7 @@
 
 #import "UNSBleatrRoomDetailViewController.h"
 #import "UNSBleatrRoom.h"
+#import "UNSBleatrRoomList.h"
 #import <AudioToolbox/AudioToolbox.h>
 
 @interface UNSBleatrRoomDetailViewController () <UITableViewDataSource>
@@ -57,7 +58,6 @@
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
   if([keyPath isEqualToString:@"bleats"]) {
-    NSLog(@"BAAAH! (new bleat)");
     AudioServicesPlaySystemSound([[self class] bleatSoundID]);
     [self.tableView reloadData];
   }
@@ -66,8 +66,9 @@
 - (void)configureView
 {
   // Update the user interface for the detail item.
-  if (self.detailItem) {
-    self.detailDescriptionLabel.text = [self.detailItem description];
+  if (self.room) {
+    self.detailDescriptionLabel.text = [self.room name];
+    [self.navigationItem setTitle:self.room.name];
   }
   self.tableView.dataSource = self;
   [self.tableView reloadData];
@@ -78,6 +79,15 @@
   [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
   [self configureView];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+  [super viewWillAppear:animated];
+  if(!self.room) {
+    // set ourselves to the hosted room if we don't have a room..
+    self.detailItem = [UNSBleatrRoomList sharedInstance].rooms[0];
+    [self configureView];
+  }
 }
 
 - (void)didReceiveMemoryWarning

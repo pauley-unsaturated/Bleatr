@@ -18,7 +18,7 @@
 // 2) Discover Services
 // 3) Discover Characteristics
 // 4) Set notify state on the known inbound characteristic
-// 5) COMMENCE BLEATING
+// 5) COMMENCE WITH THE BLEATING
 
 #import "UNSBleatrRoomList.h"
 #import "UNSRemoteBleatrRoom.h"
@@ -35,6 +35,15 @@
   NSMutableArray* _rooms;
   UNSHostedBleatrRoom* _hostedRoom;
   NSMutableDictionary* _roomsByPeripheral;
+}
+
++(instancetype)sharedInstance {
+  static UNSBleatrRoomList* _sharedRoomList = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    _sharedRoomList = [[UNSBleatrRoomList alloc] init];
+  });
+  return _sharedRoomList;
 }
 
 -(id)init {
@@ -92,7 +101,7 @@
 }
 
 -(void)updateServiceForRoom:(UNSRemoteBleatrRoom*)remoteRoom withPeripheral:(CBPeripheral*)peripheral {
-  //Find the service we care about, and save it.
+  // Find the service we care about, and save it.
   for(CBService* service in peripheral.services) {
     if([service.UUID isEqual:[UNSBleatrRoom ServiceID]]) {
       NSLog(@"Found Bleatr Service!");
@@ -117,13 +126,13 @@
 didDiscoverPeripheral:(CBPeripheral *)peripheral
     advertisementData:(NSDictionary *)advertisementData
                  RSSI:(NSNumber *)RSSI {
-  
+  NSString* name = advertisementData[CBAdvertisementDataLocalNameKey];
   if(_roomsByPeripheral[peripheral]) {
     // We actually already know about this room..
-    NSLog(@"Was reminded of room %@", peripheral.name);
+    NSLog(@"Was reminded of room %@", name);
     return;
   }
-  UNSRemoteBleatrRoom* newRoom = [[UNSRemoteBleatrRoom alloc] initWithPeripheral:peripheral];
+  UNSRemoteBleatrRoom* newRoom = [[UNSRemoteBleatrRoom alloc] initWithPeripheral:peripheral name:name];
   [self updateServiceForRoom:newRoom withPeripheral:peripheral];
   // Notify our observers that the room was discovered.
   [self willChangeValueForKey:@"rooms"];
@@ -141,6 +150,15 @@ didDiscoverPeripheral:(CBPeripheral *)peripheral
   if(!remoteRoom.service) {
     [peripheral discoverServices:@[[UNSBleatrRoom ServiceID]]];
   }
+}
+
+-(void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+  NSLog(@"Did Disconnect Peripheral %@", peripheral);
+  UNSHostedBleatrRoom* remoteRoom = _roomsByPeripheral[peripheral];
+  [self willChangeValueForKey:NSStringFromSelector(@selector(rooms))];
+  [_rooms removeObject:remoteRoom];
+  [_roomsByPeripheral removeObjectForKey:peripheral];
+  [self didChangeValueForKey:NSStringFromSelector(@selector(rooms))];
 }
 
 
@@ -183,7 +201,8 @@ didDiscoverPeripheral:(CBPeripheral *)peripheral
     }
     
     if(remoteRoom.toCentralCharacteristic && remoteRoom.toPeripheralCharacteristic) {
-      // Almost connected, just need to set notify on the toCentral characteristic...
+      // Almost connected, just need to set notify on the toCentral characteristic in order to
+      //  receive messages asynchronously.
       [remoteRoom.peripheral setNotifyValue:YES forCharacteristic:remoteRoom.toCentralCharacteristic];
     }
   }
@@ -205,5 +224,14 @@ didDiscoverPeripheral:(CBPeripheral *)peripheral
   }
 }
 
+-(void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+  if(error) {
+    NSLog(@"ERROR (didUpdateValueForCharacteristic): %@", error);
+    return;
+  }
+  NSString* bleatPayload = [[NSString alloc] initWithBytes:characteristic.value.bytes length:characteristic.value.length encoding:NSUTF8StringEncoding];
+  UNSRemoteBleatrRoom* remoteRoom = _roomsByPeripheral[peripheral];
+  [remoteRoom addBleat:bleatPayload];
+}
 
 @end

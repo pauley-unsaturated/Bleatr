@@ -22,11 +22,11 @@
 @synthesize name = _name;
 @synthesize connected = _connected;
 
--(id)initWithPeripheral:(CBPeripheral*)peripheral {
+-(id)initWithPeripheral:(CBPeripheral*)peripheral name:(NSString*)peripheralName {
   self = [super init];
   if(!self)return nil;
   self.peripheral = peripheral;
-  self.name = peripheral.name;
+  self.name = peripheralName;
   _bleats = [NSMutableArray array];
   return self;
 }
