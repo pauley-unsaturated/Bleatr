@@ -11,9 +11,12 @@
 #import "UNSBleatrRoomList.h"
 #import <AudioToolbox/AudioToolbox.h>
 
-@interface UNSBleatrRoomDetailViewController () <UITableViewDataSource>
+@interface UNSBleatrRoomDetailViewController () <UITableViewDataSource,UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
+@property (weak, nonatomic) IBOutlet UITextField *inputTextField;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *inputTextFieldBottomSpaceConstraint;
+@property (readwrite, nonatomic) CGFloat originalBottomSpaceConstant;
 - (void)configureView;
 
 @property (strong,nonatomic) UNSBleatrRoom* room;
@@ -66,12 +69,9 @@
 - (void)configureView
 {
   // Update the user interface for the detail item.
-  if (self.room) {
-    self.detailDescriptionLabel.text = [self.room name];
-    [self.navigationItem setTitle:self.room.name];
-  }
   self.tableView.dataSource = self;
   [self.tableView reloadData];
+  self.inputTextField.delegate = self;
 }
 
 - (void)viewDidLoad
@@ -83,10 +83,22 @@
 
 - (void)viewWillAppear:(BOOL)animated {
   [super viewWillAppear:animated];
+  [self registerForKeyboardNotifications];
   if(!self.room) {
     // set ourselves to the hosted room if we don't have a room..
     self.detailItem = [UNSBleatrRoomList sharedInstance].rooms[0];
     [self configureView];
+  }
+  if (self.room) {
+    self.detailDescriptionLabel.text = [self.room name];
+    [self.navigationItem setTitle:self.room.name];
+  }
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+  [self unregisterForKeyboardNotifications];
+  if(self.room) {
+    [self.room removeObserver:self forKeyPath:@"bleats"];
   }
 }
 
@@ -117,7 +129,78 @@
 }
 
 - (IBAction)postBleat:(id)sender {
-  [self.room postBleat:@"BAAAAH!"];
+  if([sender respondsToSelector:@selector(text)]) {
+    NSString* text = [sender text];
+    if(text.length > 0) {
+      [self.room postBleat:[sender text]];
+    }
+  }
+  else {
+    // Anonymous bleats
+    [self.room postBleat:@"BAAAAH!"];
+  }
+  [self.inputTextField setText:nil];
+}
+
+
+
+#pragma mark - UITextField Delegate
+-(BOOL)textFieldShouldReturn:(UITextField *)textField {
+  [textField resignFirstResponder];
+  return YES;
+}
+
+-(BOOL)textFieldShouldEndEditing:(UITextField *)textField {
+  return YES;
+}
+
+#pragma mark UITextField / Keyboard Shennanigans
+// Call this method somewhere in your view controller setup code.
+- (void)registerForKeyboardNotifications {
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(keyboardWasShown:)
+                                               name:UIKeyboardWillShowNotification object:nil];
+  
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(keyboardWillBeHidden:)
+                                               name:UIKeyboardWillHideNotification object:nil];
+  
+}
+
+- (void)unregisterForKeyboardNotifications {
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIKeyboardWillShowNotification object:nil];
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIKeyboardWillHideNotification object:nil];
+}
+
+// Called when the UIKeyboardDidShowNotification is sent.
+- (void)keyboardWasShown:(NSNotification*)aNotification {
+  NSDictionary* info = [aNotification userInfo];
+  CGRect kbRect = [self.view convertRect:[[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue]
+                                fromView:nil];
+                   
+  CGSize kbSize = kbRect.size;
+  
+  self.originalBottomSpaceConstant = self.inputTextFieldBottomSpaceConstraint.constant;
+  // Update the textField's bottom offset constraint to make space for the keyboard.
+  self.inputTextFieldBottomSpaceConstraint.constant += kbSize.height;
+  [UIView setAnimationCurve:[[info objectForKey:UIKeyboardAnimationCurveUserInfoKey] unsignedIntegerValue]];
+  [UIView animateWithDuration:[[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue]
+                   animations:^{
+    [self.view layoutIfNeeded];
+  }];
+}
+
+// Called when the UIKeyboardWillHideNotification is sent
+- (void)keyboardWillBeHidden:(NSNotification*)aNotification {
+  NSDictionary* info = [aNotification userInfo];
+  self.inputTextFieldBottomSpaceConstraint.constant = self.originalBottomSpaceConstant;
+  [UIView setAnimationCurve:[[info objectForKey:UIKeyboardAnimationCurveUserInfoKey] unsignedIntegerValue]];
+  [UIView animateWithDuration:[[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue]
+                   animations:^{
+    [self.view layoutIfNeeded];
+  }];
 }
 
 
@@ -133,7 +216,7 @@
 - (UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
   static NSString *CellIdentifier = @"BleatrCell";
   
-  // Yeah, I know I'm doing this the old way.
+  // Yeah, I know I'm doing this the old way. :p
   UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
   if (cell == nil) {
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];

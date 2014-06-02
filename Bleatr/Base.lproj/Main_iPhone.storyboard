@@ -74,27 +74,36 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Hy-TQ-6ST">
-                                <rect key="frame" x="77" y="517" width="167" height="38"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="40"/>
-                                <state key="normal" title="BAAAH!">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="postBleat:" destination="Ah7-4n-0Wa" eventType="touchUpInside" id="OHQ-9m-wSk"/>
-                                </connections>
-                            </button>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="Rol-Qp-eNv">
-                                <rect key="frame" x="0.0" y="66" width="320" height="436"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="Rol-Qp-eNv">
+                                <rect key="frame" x="0.0" y="66" width="320" height="450"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </tableView>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Send A Bleat!" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="3md-RK-KeN">
+                                <rect key="frame" x="12" y="524" width="297" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="send" enablesReturnKeyAutomatically="YES"/>
+                                <connections>
+                                    <action selector="postBleat:" destination="Ah7-4n-0Wa" eventType="editingDidEnd" id="UN3-Ph-2uK"/>
+                                </connections>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="3md-RK-KeN" firstAttribute="leading" secondItem="nDd-ZU-elQ" secondAttribute="leading" constant="12" id="JaY-1o-GwP"/>
+                            <constraint firstItem="eqb-Q3-yNR" firstAttribute="top" secondItem="3md-RK-KeN" secondAttribute="bottom" constant="14" id="MSO-DK-WEw"/>
+                            <constraint firstItem="3md-RK-KeN" firstAttribute="top" secondItem="Rol-Qp-eNv" secondAttribute="bottom" constant="8" symbolic="YES" id="N2X-k3-7Uk"/>
+                            <constraint firstItem="Rol-Qp-eNv" firstAttribute="leading" secondItem="nDd-ZU-elQ" secondAttribute="leading" id="Nu4-EK-JZe"/>
+                            <constraint firstItem="Rol-Qp-eNv" firstAttribute="top" secondItem="S2Y-Ao-EKK" secondAttribute="bottom" constant="2" id="cFI-Ab-Jmu"/>
+                            <constraint firstItem="Rol-Qp-eNv" firstAttribute="centerX" secondItem="3md-RK-KeN" secondAttribute="centerX" id="gea-GG-9Yn"/>
+                            <constraint firstAttribute="trailing" secondItem="Rol-Qp-eNv" secondAttribute="trailing" id="gir-oK-se7"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Detail" id="cra-N8-TIN"/>
                     <connections>
+                        <outlet property="inputTextField" destination="3md-RK-KeN" id="tOW-pV-dFj"/>
+                        <outlet property="inputTextFieldBottomSpaceConstraint" destination="MSO-DK-WEw" id="MzE-uO-6rR"/>
                         <outlet property="tableView" destination="Rol-Qp-eNv" id="s3R-Dz-hcU"/>
                     </connections>
                 </viewController>
