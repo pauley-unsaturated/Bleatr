@@ -127,9 +127,8 @@ didDiscoverPeripheral:(CBPeripheral *)peripheral
     advertisementData:(NSDictionary *)advertisementData
                  RSSI:(NSNumber *)RSSI {
   NSString* name = advertisementData[CBAdvertisementDataLocalNameKey];
-  if(_roomsByPeripheral[peripheral]) {
-    // We actually already know about this room..
-    NSLog(@"Was reminded of room %@", name);
+  if(!name || name.length == 0) {
+    // Sometimes the name comes later, just wait for that advertisement and ignore this one.
     return;
   }
   UNSRemoteBleatrRoom* newRoom = [[UNSRemoteBleatrRoom alloc] initWithPeripheral:peripheral name:name];
